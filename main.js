@@ -26,6 +26,9 @@ fetch('https://api2.binance.com/api/v3/ticker/24hr')
     };
     const cryptoModal = document.createElement('div');
     cryptoModal.id = 'crypto-modal';
+    const title = document.createElement('h1');
+    title.innerText = '$$CRYPTO BOYZ$$';
+    cryptoModal.appendChild(title);
     // add message for (price as of xxx time);
     // iterate through the data JSON object, looking for the current price for BTC, ETH and BNB
     for (let i = 0; i < data.length; i++) {
@@ -42,7 +45,14 @@ fetch('https://api2.binance.com/api/v3/ticker/24hr')
         container.appendChild(ticker);
 
         const price = document.createElement('p');
-        price.innerHTML = currentObj['lastPrice'];
+        const formatter = new Intl.NumberFormat('en-US', {
+          style: 'currency',
+          currency: 'USD',
+        });
+        const formattedPrice = formatter.format(
+          Number(currentObj['lastPrice'])
+        );
+        price.innerHTML = formattedPrice;
         container.appendChild(price);
 
         const minusBtn = document.createElement('button');
@@ -61,7 +71,79 @@ fetch('https://api2.binance.com/api/v3/ticker/24hr')
       }
       // add each div to the modal
     }
+
+    // // add a form div here that will submit the input text and add a container to the cryptoModal
+    const addCoinContainer = document.createElement('div');
+    addCoinContainer.classList.add('addCoin');
+
+    const addCoinLabel = document.createElement('label');
+    addCoinLabel.for = 'addCoinText';
+    const addCoinTextBox = document.createElement('input');
+    addCoinTextBox.type = 'text';
+    addCoinTextBox.id = 'addCoinText';
+    addCoinTextBox.name = 'addCoinText';
+    addCoinTextBox.placeholder = 'Add Coin';
+    const addBtn = document.createElement('button');
+    addBtn.id = 'addCoinBtn';
+    addBtn.innerHTML = '+';
+    addBtn.onclick = function () {
+      //   console.log('add button works');
+      // take the text from the input (addCoinTextBox.value) and add to the cryptoList
+      // iterate through the data
+      // we want to check if the cryptolist already has the added Coin, if it does, this function does nothing / return or break nothing
+      // otherwise, we want to do the following:
+      // we want to add the added Coin to the cryptoList
+      // we want to add a container with the added Coin to the cryptoModal
+      const addedCoin = addCoinTextBox.value;
+
+      if (!cryptoList.hasOwnProperty[addedCoin]) {
+        cryptoList[addedCoin] = addedCoin;
+        for (let i = 0; i < data.length; i++) {
+          const currentObj = data[i];
+          // add each data point to a container/div
+          if (currentObj['symbol'] === addedCoin) {
+            const container = document.createElement('div');
+            container.classList.add('container');
+            container.id = i;
+            // in each container, add a minus button / link
+
+            const ticker = document.createElement('p');
+            ticker.innerHTML = currentObj['symbol'];
+            container.appendChild(ticker);
+
+            const price = document.createElement('p');
+            const formatter = new Intl.NumberFormat('en-US', {
+              style: 'currency',
+              currency: 'USD',
+            });
+            const formattedPrice = formatter.format(
+              Number(currentObj['lastPrice'])
+            );
+            price.innerHTML = formattedPrice;
+            container.appendChild(price);
+
+            const minusBtn = document.createElement('button');
+            minusBtn.classList.add('minusBtn');
+            minusBtn.textContent = '-';
+            // assign the onclick to invoke the helper function that will remove the
+            minusBtn.onclick = function () {
+              delete cryptoList[currentObj['symbol']];
+              const deletedCoin = document.getElementById(`${i}`);
+              cryptoModal.removeChild(deletedCoin);
+            };
+            cryptoModal.appendChild(container);
+            container.appendChild(minusBtn);
+          }
+        }
+      } else return;
+      // copy and paste the code from above
+      //
+    };
+
+    addCoinContainer.append(addCoinLabel, addCoinTextBox, addBtn);
+
     body.appendChild(cryptoModal);
+    body.appendChild(addCoinContainer);
   })
   .catch((error) => {
     console.log('Error: ', error);
