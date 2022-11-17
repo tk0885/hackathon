@@ -11,11 +11,14 @@
 
 */
 
+const body = document.querySelector('body');
+const minusBtn = document.querySelectorAll('.minusBtn');
+
 // use fetch to GET binance data from api
 fetch('https://api2.binance.com/api/v3/ticker/24hr')
   .then((data) => data.json())
   .then((data) => {
-    console.log(data);
+    // console.log(data);
     const cryptoList = {
       BTCUSDT: 'BTCUSDT',
       ETHUSDT: 'ETHUSDT',
@@ -31,6 +34,7 @@ fetch('https://api2.binance.com/api/v3/ticker/24hr')
       if (cryptoList.hasOwnProperty(currentObj['symbol'])) {
         const container = document.createElement('div');
         container.classList.add('container');
+        container.id = i;
         // in each container, add a minus button / link
 
         const ticker = document.createElement('p');
@@ -42,32 +46,41 @@ fetch('https://api2.binance.com/api/v3/ticker/24hr')
         container.appendChild(price);
 
         const minusBtn = document.createElement('button');
-        minusBtn.classList.add('minus-btn');
+        minusBtn.classList.add('minusBtn');
         minusBtn.textContent = '-';
+        // assign the onclick to invoke the helper function that will remove the
+        minusBtn.onclick = function () {
+          delete cryptoList[currentObj['symbol']];
+          const deletedCoin = document.getElementById(`${i}`);
+          cryptoModal.removeChild(deletedCoin);
+        };
+        // object.onclick = 'deleteItem()';
         container.appendChild(minusBtn);
 
         cryptoModal.appendChild(container);
       }
       // add each div to the modal
     }
-    document.querySelector('body').appendChild(cryptoModal);
+    body.appendChild(cryptoModal);
   })
   .catch((error) => {
     console.log('Error: ', error);
   });
 
+// wrap the functionality below in a helper function so we can invoke it when minusBtn onclick is triggered
+// function deleteItem() {
+//   console.log('hello');
+//   // minusBtn.forEach((btn) => {
+//   //   btn.addEventListener('click', (e) => {
+//   //     e.preventDefault();
+//   //     console.log('it works');
+//   //   });
+//   // });
+// }
+
 // add eventlisteners for clicking on the minus button
 // remove that associated ticket from the cryptolist
 // remove the container associated with this ticker
-// function removeSymbol(list) {
-//   const minusBtn = document.querySelectorAll('.minus-btn');
-//   minustBtn.forEach((btn) => {
-//     btn.addEventListener('click', (e) => {
-//       e.preventDefault();
-//       console.log(e);
-//     });
-//   });
-// }
-// removeSymbol();
+
 // add a function that will be invoked when the form for additioal ticker is clicked
 // look up the data and add that ticker and price to the modal
